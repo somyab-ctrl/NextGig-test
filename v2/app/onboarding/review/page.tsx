@@ -1,0 +1,198 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+
+// ── Step 2: Review Parsed Profile ────────────────────────────────────
+
+interface ParsedSkill {
+  id: string;
+  name: string;
+  domain: string;
+  level: number;
+}
+
+interface ParsedProfile {
+  name: string;
+  email: string;
+  bio: string;
+  education: { degree: string; field: string; institution: string; year: number; gpa?: number };
+  skills: ParsedSkill[];
+  projects: { title: string; description: string; techStack: string[] }[];
+  certifications: { name: string; issuer: string; date: string }[];
+}
+
+export default function ReviewPage() {
+  const [profile, setProfile] = useState<ParsedProfile | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("nextgig-onboarding-parsed");
+    if (stored) {
+      try {
+        setProfile(JSON.parse(stored));
+      } catch {
+        router.push("/onboarding/upload");
+      }
+    } else {
+      router.push("/onboarding/upload");
+    }
+  }, [router]);
+
+  const updateField = (path: string, value: unknown) => {
+    if (!profile) return;
+    const keys = path.split(".");
+    const updated = { ...profile };
+    let obj: Record<string, unknown> = updated;
+    for (let i = 0; i < keys.length - 1; i++) {
+      obj[keys[i]] = { ...(obj[keys[i]] as Record<string, unknown>) };
+      obj = obj[keys[i]] as Record<string, unknown>;
+    }
+    obj[keys[keys.length - 1]] = value;
+    setProfile(updated as ParsedProfile);
+  };
+
+  const removeSkill = (index: number) => {
+    if (!profile) return;
+    setProfile({ ...profile, skills: profile.skills.filter((_, i) => i !== index) });
+  };
+
+  const updateSkillLevel = (index: number, level: number) => {
+    if (!profile) return;
+    const skills = [...profile.skills];
+    skills[index] = { ...skills[index], level: Math.min(5, Math.max(1, level)) };
+    setProfile({ ...profile, skills });
+  };
+
+  const handleContinue = () => {
+    if (!profile) return;
+    sessionStorage.setItem("nextgig-onboarding-parsed", JSON.stringify(profile));
+    router.push("/onboarding/agreement");
+  };
+
+  if (!profile) return null;
+
+  return (
+    <div>
+      {/* Step indicator */}
+      <div className="flex items-center gap-2 mb-8">
+        {[1, 2, 3, 4, 5].map((step) => (
+          <div key={step} className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+              step <= 2 ? "bg-[var(--ng-primary)] text-white" : "bg-muted text-muted-foreground"
+            }`}>
+              {step < 2 ? "✓" : step}
+            </div>
+            {step < 5 && <div className={`w-8 h-px ${step < 2 ? "bg-[var(--ng-primary)]" : "bg-border"}`} />}
+          </div>
+        ))}
+      </div>
+
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <h2 className="text-2xl font-bold mb-2">Review Your Profile</h2>
+        <p className="text-muted-foreground mb-6">
+          Here&apos;s what our AI extracted from your CV. Review and edit anything that needs correction.
+        </p>
+
+        {/* Personal Info */}
+        <Card className="mb-4">
+          <CardContent className="p-5 space-y-4">
+            <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">Personal Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><Label className="text-xs mb-1.5 block">Full Name</Label><Input value={profile.name} onChange={(e) => updateField("name", e.target.value)} /></div>
+              <div><Label className="text-xs mb-1.5 block">Email</Label><Input value={profile.email} onChange={(e) => updateField("email", e.target.value)} /></div>
+            </div>
+            <div><Label className="text-xs mb-1.5 block">Bio</Label><Input value={profile.bio} onChange={(e) => updateField("bio", e.target.value)} /></div>
+          </CardContent>
+        </Card>
+
+        {/* Education */}
+        <Card className="mb-4">
+          <CardContent className="p-5 space-y-4">
+            <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">Education</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><Label className="text-xs mb-1.5 block">Degree</Label><Input value={profile.education.degree} onChange={(e) => updateField("education.degree", e.target.value)} /></div>
+              <div><Label className="text-xs mb-1.5 block">Field</Label><Input value={profile.education.field} onChange={(e) => updateField("education.field", e.target.value)} /></div>
+              <div><Label className="text-xs mb-1.5 block">Institution</Label><Input value={profile.education.institution} onChange={(e) => updateField("education.institution", e.target.value)} /></div>
+              <div className="flex gap-4">
+                <div className="flex-1"><Label className="text-xs mb-1.5 block">Year</Label><Input type="number" value={profile.education.year} onChange={(e) => updateField("education.year", parseInt(e.target.value))} /></div>
+                <div className="flex-1"><Label className="text-xs mb-1.5 block">GPA</Label><Input type="number" step="0.1" value={profile.education.gpa || ""} onChange={(e) => updateField("education.gpa", parseFloat(e.target.value))} /></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Skills */}
+        <Card className="mb-4">
+          <CardContent className="p-5">
+            <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-4">Skills ({profile.skills.length})</h3>
+            <div className="space-y-3">
+              {profile.skills.map((skill, i) => (
+                <motion.div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium">{skill.name}</span>
+                    <Badge variant="outline" className="ml-2 text-[9px] h-auto min-h-0 min-w-0 py-0 px-1">{skill.domain}</Badge>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-muted-foreground w-12">Lvl {skill.level}/5</span>
+                    <input type="range" min="1" max="5" value={skill.level} onChange={(e) => updateSkillLevel(i, parseInt(e.target.value))} className="w-20 h-1.5 accent-[var(--ng-primary)]" />
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => removeSkill(i)} className="w-7 h-7 p-0 min-h-0 min-w-0 text-muted-foreground hover:text-destructive">×</Button>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Projects */}
+        <Card className="mb-4">
+          <CardContent className="p-5">
+            <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-4">Projects ({profile.projects.length})</h3>
+            {profile.projects.map((project, i) => (
+              <div key={i} className="p-3 rounded-lg bg-muted/50 mb-2">
+                <p className="text-sm font-medium">{project.title}</p>
+                <p className="text-xs text-muted-foreground mt-1">{project.description}</p>
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {project.techStack.map((tech) => (
+                    <Badge key={tech} variant="secondary" className="text-[10px] h-auto min-h-0 min-w-0 py-0 px-1.5">{tech}</Badge>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Certifications */}
+        {profile.certifications.length > 0 && (
+          <Card className="mb-6">
+            <CardContent className="p-5">
+              <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-4">Certifications</h3>
+              {profile.certifications.map((cert, i) => (
+                <div key={i} className="p-3 rounded-lg bg-muted/50 mb-2">
+                  <p className="text-sm font-medium">{cert.name}</p>
+                  <p className="text-xs text-muted-foreground">{cert.issuer} · {cert.date}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => router.push("/onboarding/upload")} className="flex-1">
+            ← Back to Upload
+          </Button>
+          <Button onClick={handleContinue} className="flex-1">
+            This Looks Right →
+          </Button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
