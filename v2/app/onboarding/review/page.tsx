@@ -86,11 +86,11 @@ export default function ReviewPage() {
         {[1, 2, 3, 4, 5].map((step) => (
           <div key={step} className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-              step <= 2 ? "bg-[var(--ng-primary)] text-white" : "bg-muted text-muted-foreground"
+              step <= 2 ? "bg-ng-primary text-white" : "bg-muted text-muted-foreground"
             }`}>
               {step < 2 ? "✓" : step}
             </div>
-            {step < 5 && <div className={`w-8 h-px ${step < 2 ? "bg-[var(--ng-primary)]" : "bg-border"}`} />}
+            {step < 5 && <div className={`w-8 h-px ${step < 2 ? "bg-ng-primary" : "bg-border"}`} />}
           </div>
         ))}
       </div>
@@ -106,10 +106,10 @@ export default function ReviewPage() {
           <CardContent className="p-5 space-y-4">
             <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">Personal Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label className="text-xs mb-1.5 block">Full Name</Label><Input value={profile.name} onChange={(e) => updateField("name", e.target.value)} /></div>
-              <div><Label className="text-xs mb-1.5 block">Email</Label><Input value={profile.email} onChange={(e) => updateField("email", e.target.value)} /></div>
+              <div><Label className="text-xs mb-1.5 block">Full Name</Label><Input value={profile.name ?? ""} onChange={(e) => updateField("name", e.target.value)} /></div>
+              <div><Label className="text-xs mb-1.5 block">Email</Label><Input value={profile.email ?? ""} onChange={(e) => updateField("email", e.target.value)} /></div>
             </div>
-            <div><Label className="text-xs mb-1.5 block">Bio</Label><Input value={profile.bio} onChange={(e) => updateField("bio", e.target.value)} /></div>
+            <div><Label className="text-xs mb-1.5 block">Bio</Label><Input value={profile.bio ?? ""} onChange={(e) => updateField("bio", e.target.value)} /></div>
           </CardContent>
         </Card>
 
@@ -118,12 +118,12 @@ export default function ReviewPage() {
           <CardContent className="p-5 space-y-4">
             <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">Education</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label className="text-xs mb-1.5 block">Degree</Label><Input value={profile.education.degree} onChange={(e) => updateField("education.degree", e.target.value)} /></div>
-              <div><Label className="text-xs mb-1.5 block">Field</Label><Input value={profile.education.field} onChange={(e) => updateField("education.field", e.target.value)} /></div>
-              <div><Label className="text-xs mb-1.5 block">Institution</Label><Input value={profile.education.institution} onChange={(e) => updateField("education.institution", e.target.value)} /></div>
+              <div><Label className="text-xs mb-1.5 block">Degree</Label><Input value={profile.education.degree ?? ""} onChange={(e) => updateField("education.degree", e.target.value)} /></div>
+              <div><Label className="text-xs mb-1.5 block">Field</Label><Input value={profile.education.field ?? ""} onChange={(e) => updateField("education.field", e.target.value)} /></div>
+              <div><Label className="text-xs mb-1.5 block">Institution</Label><Input value={profile.education.institution ?? ""} onChange={(e) => updateField("education.institution", e.target.value)} /></div>
               <div className="flex gap-4">
-                <div className="flex-1"><Label className="text-xs mb-1.5 block">Year</Label><Input type="number" value={profile.education.year} onChange={(e) => updateField("education.year", parseInt(e.target.value))} /></div>
-                <div className="flex-1"><Label className="text-xs mb-1.5 block">GPA</Label><Input type="number" step="0.1" value={profile.education.gpa || ""} onChange={(e) => updateField("education.gpa", parseFloat(e.target.value))} /></div>
+                <div className="flex-1"><Label className="text-xs mb-1.5 block">Year</Label><Input type="number" value={profile.education.year ?? ""} onChange={(e) => updateField("education.year", parseInt(e.target.value))} /></div>
+                <div className="flex-1"><Label className="text-xs mb-1.5 block">GPA</Label><Input type="number" step="0.1" value={profile.education.gpa ?? ""} onChange={(e) => updateField("education.gpa", parseFloat(e.target.value))} /></div>
               </div>
             </div>
           </CardContent>
@@ -142,7 +142,7 @@ export default function ReviewPage() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[10px] text-muted-foreground w-12">Lvl {skill.level}/5</span>
-                    <input type="range" min="1" max="5" value={skill.level} onChange={(e) => updateSkillLevel(i, parseInt(e.target.value))} className="w-20 h-1.5 accent-[var(--ng-primary)]" />
+                    <input type="range" min="1" max="5" value={skill.level ?? ""} onChange={(e) => updateSkillLevel(i, parseInt(e.target.value))} className="w-20 h-1.5 accent-ng-primary" />
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => removeSkill(i)} className="w-7 h-7 p-0 min-h-0 min-w-0 text-muted-foreground hover:text-destructive">×</Button>
                 </motion.div>

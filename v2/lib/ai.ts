@@ -1,21 +1,3 @@
-// ── NextGig AI Wrapper ───────────────────────────────────────────────
-//
-// ╔═══════════════════════════════════════════════════════════════════╗
-// ║  THIS IS THE PROVIDER-SWAP SEAM                                  ║
-// ║                                                                  ║
-// ║  To switch from Groq to ANY OpenAI-compatible provider:          ║
-// ║    1. Edit .env.local                                            ║
-// ║    2. Set AI_API_KEY, AI_BASE_URL, AI_MODEL                      ║
-// ║    3. No code changes needed                                     ║
-// ║                                                                  ║
-// ║  This module handles: skill extraction, gap explanation,         ║
-// ║  candidate ranking explanations, assessment generation,          ║
-// ║  assessment evaluation, and the AI assistant.                    ║
-// ║                                                                  ║
-// ║  The AI NEVER generates match scores — only explanations         ║
-// ║  and extractions. Scores come from lib/matching.ts.              ║
-// ╚═══════════════════════════════════════════════════════════════════╝
-
 import OpenAI from "openai";
 import type {
   Skill,
@@ -29,9 +11,6 @@ import type {
   ChatMessage,
 } from "./types";
 
-// ── OpenAI-Compatible Client ─────────────────────────────────────────
-// Reads config from environment variables. Works with any OpenAI-compatible
-// API: Groq, OpenAI, Together, Fireworks, Ollama, etc.
 
 function getClient(): OpenAI {
   const apiKey = process.env.AI_API_KEY;
@@ -48,15 +27,8 @@ function getClient(): OpenAI {
 }
 
 function getModel(): string {
-  return process.env.AI_MODEL || "llama3-70b-8192";
+  return process.env.AI_MODEL || "openai/gpt-oss-120b";
 }
-
-// ── Shared Chat Completion Helper ────────────────────────────────────
-// All AI functions go through this single helper. It handles:
-//   - Client creation from env vars
-//   - Model selection from env vars
-//   - Error handling with fallback
-//   - JSON-only response format
 
 interface ChatCompleteOptions {
   temperature?: number;
@@ -80,14 +52,10 @@ async function chatComplete(
   return response.choices[0]?.message?.content || "";
 }
 
-/**
- * Defensively parse a JSON response from the AI.
- * The AI is prompted to return JSON only, but may include markdown
- * code fences or other artifacts. This strips them and parses.
- */
+
 function parseJSON<T>(raw: string, fallback: T): T {
   try {
-    // Strip markdown code fences if present
+  
     let cleaned = raw.trim();
     if (cleaned.startsWith("```json")) {
       cleaned = cleaned.slice(7);
@@ -106,12 +74,6 @@ function parseJSON<T>(raw: string, fallback: T): T {
   }
 }
 
-// ── Exported AI Functions ────────────────────────────────────────────
-
-/**
- * Extract skills, education, projects, and certifications from resume text.
- * Returns a partial Student profile that the user must confirm before saving.
- */
 export async function extractSkillsFromResume(text: string): Promise<{
   name: string;
   email: string;
