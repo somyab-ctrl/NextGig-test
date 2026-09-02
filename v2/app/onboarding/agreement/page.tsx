@@ -60,9 +60,9 @@ export default function AgreementPage() {
         {[1, 2, 3, 4, 5].map((step) => (
           <div key={step} className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-              step <= 3 ? "bg-[var(--ng-primary)] text-white" : "bg-muted text-muted-foreground"
+              step <= 3 ? "bg-ng-primary text-white" : "bg-muted text-muted-foreground"
             }`}>{step < 3 ? "✓" : step}</div>
-            {step < 5 && <div className={`w-8 h-px ${step < 3 ? "bg-[var(--ng-primary)]" : "bg-border"}`} />}
+            {step < 5 && <div className={`w-8 h-px ${step < 3 ? "bg-ng-primary" : "bg-border"}`} />}
           </div>
         ))}
       </div>
@@ -103,7 +103,7 @@ export default function AgreementPage() {
         </div>
 
         {/* Agreement checkbox */}
-        <Card className="mb-6 border-[var(--ng-warning)]/30 bg-[var(--ng-warning)]/5">
+        <Card className="mb-6 border-(--ng-warning)/30 bg-(--ng-warning)/5">
           <CardContent className="p-5">
             <div className="flex items-start gap-3">
               <Checkbox

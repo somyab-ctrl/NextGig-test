@@ -18,31 +18,44 @@ export default function UploadPage() {
   const router = useRouter();
 
   const handleFileUpload = useCallback(async (file: File) => {
-    if (file.type === "text/plain") {
-      const text = await file.text();
-      setResumeText(text);
-      toast.success("File loaded successfully");
-    } else if (file.type === "application/pdf") {
-      // For PDF: extract text from binary (basic extraction)
-      const buffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let text = "";
-      // Simple PDF text extraction — look for text between BT/ET markers
-      const decoder = new TextDecoder("utf-8", { fatal: false });
-      const rawText = decoder.decode(bytes);
-      // Extract readable strings
-      const matches = rawText.match(/[\x20-\x7E]{4,}/g);
-      if (matches) {
-        text = matches.join(" ").slice(0, 5000);
-      }
-      if (text.length > 50) {
+    try {
+      if (file.type === "text/plain") {
+        const text = await file.text();
+
         setResumeText(text);
-        toast.success("PDF text extracted. Please review and edit if needed.");
-      } else {
-        toast.error("Could not extract text from PDF. Please paste your resume text instead.");
+        toast.success("File loaded successfully");
+        return;
       }
-    } else {
+
+      if (file.type === "application/pdf") {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/extract-pdf", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to extract PDF");
+        }
+
+        setResumeText(data.text);
+        toast.success("PDF text extracted successfully");
+        return;
+      }
+
       toast.error("Please upload a .txt or .pdf file");
+    } catch (error) {
+      console.error("File upload error:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not process the file"
+      );
     }
   }, []);
 
@@ -98,7 +111,7 @@ export default function UploadPage() {
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
                 step === 1
-                  ? "bg-[var(--ng-primary)] text-white"
+                  ? "bg-ng-primary text-white"
                   : "bg-muted text-muted-foreground"
               }`}
             >
@@ -123,7 +136,7 @@ export default function UploadPage() {
         {/* Drop zone */}
         <Card
           className={`border-dashed border-2 transition-colors duration-200 mb-4 ${
-            dragOver ? "border-[var(--ng-primary)] bg-[var(--ng-soft)]/20" : "border-border"
+            dragOver ? "border-ng-primary bg-(--ng-soft)/20" : "border-border"
           }`}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
