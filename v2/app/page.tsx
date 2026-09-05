@@ -18,7 +18,7 @@ export default function Home() {
         className="max-w-3xl"
       >
         <Badge />
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+        <h1 className="text-5xl md:text-7xl leading-[1.1] font-bold tracking-tighter mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
           The future of skill intelligence is here.
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
