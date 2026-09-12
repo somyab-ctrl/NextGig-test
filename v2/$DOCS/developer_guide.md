@@ -1,6 +1,6 @@
 # Developer Guide
 
-This guide explains how to modify, extend, and fix the NextGig frontend MVP.
+This guide explains how to modify, extend, and fix the NextGig full-stack MVP.
 
 ## Getting Started Locally
 
@@ -13,6 +13,12 @@ This guide explains how to modify, extend, and fix the NextGig frontend MVP.
 ## Adding a New Shadcn Component
 
 We use Shadcn UI for our base components. To add a new component, do not try to run `npx shadcn-ui@latest add <component>`. Since we are manually crafting the MVP, you can often just copy the raw code from the Shadcn docs into `components/ui/` or ask the AI assistant to write the component for you using the standard Radix UI + Tailwind approach.
+
+## Backend API Routes
+
+NextGig utilizes robust Next.js API routes for complex server-side operations:
+- **PDF Parsing & OCR**: Using `unpdf` and `tesseract.js`, our `/api/extract-pdf` route processes resumes entirely server-side. It attempts text extraction first and falls back to OCR if the PDF is an image.
+- **AI Integration**: The `lib/ai.ts` wrapper is consumed by API routes like `/api/extract-skills`, `/api/generate-assessment`, and `/api/evaluate-assessment`.
 
 ## Modifying the Design System
 

@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-NextGig is a frontend-only MVP built for the SIH 2026 hackathon. It uses a modern Next.js 14 stack (App Router) with React, TypeScript, and Tailwind CSS. The design system leverages Shadcn UI and Framer Motion for premium, animated interfaces.
+NextGig is a full-stack MVP built for the SIH 2026 hackathon. It uses a modern Next.js 14 stack (App Router) with React, TypeScript, and Tailwind CSS on the frontend, and robust Next.js API routes on the backend for heavy processing tasks like OCR and AI integrations. The design system leverages Shadcn UI and Framer Motion for premium, animated interfaces.
 
 ### Core Stack
 - **Framework:** Next.js (App Router)
@@ -14,7 +14,7 @@ NextGig is a frontend-only MVP built for the SIH 2026 hackathon. It uses a moder
 
 ### Key Directories
 - `app/`: Next.js App Router structure. Contains all pages, layouts, and API routes.
-  - `app/api/`: Contains dummy API routes for the AI wrapper (e.g., `/api/evaluate-assessment`).
+  - `app/api/`: Contains full-stack API routes handling real server-side workloads, including AI generation, PDF parsing, and OCR processing using Tesseract.
   - `app/onboarding/`: The 5-step student onboarding flow.
   - `app/student/`: The student dashboard and opportunities view.
   - `app/recruiter/`: The recruiter dashboard.
@@ -31,7 +31,7 @@ NextGig is a frontend-only MVP built for the SIH 2026 hackathon. It uses a moder
 
 ## How State is Managed
 
-Since this is a frontend-only MVP, we don't have a real database or authentication backend like Supabase or Firebase. Instead, we rely on browser storage:
+While the application features a robust server-side backend for complex processing (OCR, PDF extraction, AI interaction), we currently use browser storage instead of a traditional database to persist state for the MVP:
 
 1. **SessionStorage:** Used for temporary data during the onboarding flow (e.g., parsed resume data, generated questions, and grade results). This ensures if the user refreshes during onboarding, they don't lose their immediate place.
 2. **LocalStorage:** Used for long-term persistence across the app (e.g., the student's completed profile, role selection, and theme preference).
@@ -65,4 +65,4 @@ The AI handles:
 4. Providing actionable gap analysis and recommendations.
 
 ## Future Integration (Insforge)
-This frontend is built to be easily wired into the "Insforge" backend later. The API boundaries are clean (e.g., `fetch('/api/evaluate-assessment')`), meaning you can swap out the mock Next.js API routes with real endpoints once the backend is ready.
+This full-stack application is built to be easily wired into the broader "Insforge" ecosystem later. The API boundaries are clean and compartmentalized, meaning the existing robust Next.js API routes can act as a standalone microservice or easily connect to a centralized database once it's introduced.
